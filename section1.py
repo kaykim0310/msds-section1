@@ -4,7 +4,7 @@ from datetime import datetime
 
 # 페이지 설정
 st.set_page_config(
-    page_title="MSDS 섹션 1 - 화학제품과 회사 정보",
+    page_title="MSDS 섹션 1 - 화학제품과 회사정보",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
