@@ -12,18 +12,34 @@ st.set_page_config(
 # 스타일 적용
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap');
+    
+    * {
+        font-family: 'Nanum Gothic', sans-serif !important;
+    }
+    
     .stTextInput > div > div > input {
         background-color: #f0f0f0;
+        font-family: 'Nanum Gothic', sans-serif !important;
     }
     .section-header {
         background-color: #d3e3f3;
         padding: 10px;
         border-radius: 5px;
         margin-bottom: 20px;
+        font-family: 'Nanum Gothic', sans-serif !important;
     }
     .small-text {
         font-size: 0.8em;
         color: #666;
+    }
+    /* multiselect 내부 텍스트도 나눔고딕 적용 */
+    .stMultiSelect > div {
+        font-family: 'Nanum Gothic', sans-serif !important;
+    }
+    /* 드롭다운 옵션에도 적용 */
+    div[data-baseweb="select"] {
+        font-family: 'Nanum Gothic', sans-serif !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -148,31 +164,22 @@ with col1:
     st.markdown("**제품의 권고 용도**")
     
     # 드롭다운용 옵션 생성 (용도명과 설명을 함께 표시)
-    usage_options = []
+    usage_options = {}
     for code, (name, desc) in usage_data.items():
-        # 설명은 50자까지만 표시하고 나머지는 ...으로 처리
-        short_desc = desc[:50] + "..." if len(desc) > 50 else desc
-        option_text = f"{code}. {name} <span class='small-text'>- {short_desc}</span>"
-        usage_options.append((code, option_text, f"{code}. {name}"))
+        # 전체 설명을 포함한 옵션 텍스트 생성
+        option_text = f"{code}. {name} - {desc}"
+        usage_options[code] = option_text
     
-    # 선택된 용도 표시
+    # 선택된 용도
     selected_uses = st.multiselect(
         "용도 선택 (복수 선택 가능)",
-        options=[code for code, _, _ in usage_options],
-        format_func=lambda x: next((display for code, _, display in usage_options if code == x), x),
+        options=list(usage_options.keys()),
+        format_func=lambda x: usage_options[x],
         default=st.session_state.section1_data.get('recommended_use', []),
-        key="recommended_use_select"
+        key="recommended_use_select",
+        help="드롭다운에서 용도와 설명을 함께 확인하실 수 있습니다."
     )
     st.session_state.section1_data['recommended_use'] = selected_uses
-    
-    # 선택된 용도의 전체 설명 표시
-    if selected_uses:
-        st.markdown("**선택된 용도:**")
-        for use_code in selected_uses:
-            if use_code in usage_data:
-                name, desc = usage_data[use_code]
-                st.markdown(f"- **{use_code}. {name}**")
-                st.markdown(f"  <span class='small-text'>{desc}</span>", unsafe_allow_html=True)
 
 with col2:
     st.markdown("**제품의 사용상의 제한**")
