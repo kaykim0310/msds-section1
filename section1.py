@@ -136,7 +136,7 @@ if 'section1_data' not in st.session_state:
         'product_name': '',
         'other_names': '',
         'recommended_use': [],
-        'use_restrictions': '',
+        'use_restrictions': '상기 용도외 사용금지',  # 기본값 설정
         'manufacturer_info': {
             'company_name': '',
             'address': '',
@@ -176,20 +176,20 @@ with col1:
         options=list(usage_options.keys()),
         format_func=lambda x: usage_options[x],
         default=st.session_state.section1_data.get('recommended_use', []),
-        key="recommended_use_select",
         help="드롭다운에서 용도와 설명을 함께 확인하실 수 있습니다."
     )
+    # 선택 즉시 세션 상태에 저장
     st.session_state.section1_data['recommended_use'] = selected_uses
 
 with col2:
     st.markdown("**제품의 사용상의 제한**")
-    use_restrictions = st.text_area(
+    st.text_input(
         "사용상의 제한사항",
-        height=150,
-        value=st.session_state.section1_data['use_restrictions'],
+        value="상기 용도외 사용금지",
+        disabled=True,
         key="use_restrictions"
     )
-    st.session_state.section1_data['use_restrictions'] = use_restrictions
+    st.session_state.section1_data['use_restrictions'] = "상기 용도외 사용금지"
 
 # 다. 제조자 정보
 st.subheader("다. 제조자/수입자/유통업자 정보")
@@ -266,4 +266,13 @@ with col2:
         
 # 데이터 미리보기 (디버깅용 - 나중에 제거 가능)
 with st.expander("저장된 데이터 확인"):
+    # 선택된 용도 표시
+    if st.session_state.section1_data['recommended_use']:
+        st.write("**선택된 용도:**")
+        for code in st.session_state.section1_data['recommended_use']:
+            if code in usage_data:
+                name, _ = usage_data[code]
+                st.write(f"- {code}. {name}")
+    
+    # 전체 데이터 JSON 표시
     st.json(st.session_state.section1_data)
